@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VISIORYX | Neural Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;900&display=swap');
+        body { background: #020202; color: #fff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(20px); }
+        
+        /* THE SCANNING LINE ANIMATION FIXED */
+        .scanner-line {
+            position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, transparent, #00f2ff, transparent);
+            box-shadow: 0 0 25px #00f2ff;
+            display: none; z-index: 50;
+            animation: scanLoop 2s ease-in-out infinite;
+        }
+        @keyframes scanLoop { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
+        .is-scanning .scanner-line { display: block; }
+        
+        .tab-content { display: none; }
+        .tab-active { display: block; animation: fadeInUp 0.6s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .accent-text { background: linear-gradient(90deg, #00f2ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="p-6 md:p-12">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-16 border-b border-white/5 pb-10 gap-6">
+            <div class="text-left">
+                <h1 class="text-4xl font-black italic tracking-tighter">VISIORYX</h1>
+                <p class="text-[10px] font-mono text-cyan-500 uppercase tracking-[0.3em]">Global Visual Intelligence Ecosystem</p>
+            </div>
+            <nav class="flex gap-10 text-[11px] font-bold uppercase tracking-widest">
+                <button onclick="switchTab('scan')" id="btn-scan" class="text-cyan-400 border-b-2 border-cyan-400 pb-1">Intelligence Scanner</button>
+                <button onclick="switchTab('about')" id="btn-about" class="text-white/40 hover:text-white transition">The Founder</button>
+            </nav>
+        </header>
+
+        <div id="tab-scan" class="tab-content tab-active">
+            <div id="drop-zone" class="glass relative overflow-hidden rounded-[50px] p-20 md:p-40 text-center border-2 border-dashed border-white/10 hover:border-cyan-500 transition-all cursor-pointer" onclick="document.getElementById('file-input').click()">
+                <div class="scanner-line"></div>
+                <div class="relative z-10">
+                    <h2 class="text-5xl font-light mb-4">Upload <span class="accent-text font-black">Visual Data</span></h2>
+                    <p id="status-label" class="text-white/30 font-mono text-xs uppercase tracking-widest italic">Awaiting Raw File for Neural Processing...</p>
+                    <input type="file" id="file-input" class="hidden" onchange="initiateScan(event)">
+                </div>
+            </div>
+
+            <div id="results-display" class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">
+                </div>
+        </div>
+
+        <div id="tab-about" class="tab-content">
+            <div class="glass p-16 rounded-[50px] grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-6xl font-black mb-6">YOUSAF</h2>
+                    <p class="text-cyan-400 font-mono mb-8 text-sm uppercase tracking-widest italic underline decoration-cyan-900">Creative Technologist | Photographer | Designer</p>
+                    <p class="text-gray-400 text-xl leading-relaxed mb-10">
+                        Since 2017, I have bridged the gap between visual art and computational logic. 
+                        As a BS Computing student, VisioryX is my vision for an intelligent creative world 
+                        where every pixel carries data, context, and identity.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <span class="bg-white/5 border border-white/10 px-6 py-2 rounded-full text-[10px] uppercase font-bold tracking-tighter">AI Vision Systems</span>
+                        <span class="bg-white/5 border border-white/10 px-6 py-2 rounded-full text-[10px] uppercase font-bold tracking-tighter">Fashion Photography</span>
+                        <span class="bg-white/5 border border-white/10 px-6 py-2 rounded-full text-[10px] uppercase font-bold tracking-tighter">UI/UX Strategy</span>
+                    </div>
+                </div>
+                <div class="aspect-square bg-gradient-to-br from-cyan-950/20 to-black rounded-[40px] border border-white/5 flex items-center justify-center">
+                    
+                    <img src="developer.jpg" alt="">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('tab-active'));
+            document.getElementById('tab-' + tab).classList.add('tab-active');
+            
+            const isScan = tab === 'scan';
+            document.getElementById('btn-scan').className = isScan ? "text-cyan-400 border-b-2 border-cyan-400 pb-1" : "text-white/40 hover:text-white transition";
+            document.getElementById('btn-about').className = !isScan ? "text-cyan-400 border-b-2 border-cyan-400 pb-1" : "text-white/40 hover:text-white transition";
+        }
+
+        async function initiateScan(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+
+            const dropZone = document.getElementById('drop-zone');
+            const status = document.getElementById('status-label');
+            
+            // Trigger Animation
+            dropZone.classList.add('is-scanning');
+            status.innerText = "Initializing VisioryX Pro Core... Extracting Metadata...";
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/scan', { method: 'POST', body: formData });
+                const data = await response.json();
+                
+                const card = `
+                <div class="glass p-8 rounded-[40px] flex flex-col md:flex-row gap-8 items-center hover:border-cyan-500/50 transition-all group">
+                    <img src="${URL.createObjectURL(file)}" class="w-40 h-40 object-cover rounded-3xl shadow-2xl group-hover:scale-105 transition-transform">
+                    <div class="flex-1 w-full">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-2xl font-black uppercase tracking-tight">${data.title}</h3>
+                            <span class="text-[10px] bg-cyan-500/10 text-cyan-400 font-mono px-3 py-1 rounded-full">${data.confidence}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 text-[10px] font-mono mb-6">
+                            <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
+                                <span class="block text-gray-500 mb-1 uppercase tracking-widest">Device</span>
+                                <span class="text-white font-bold">${data.device}</span>
+                            </div>
+                            <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
+                                <span class="block text-gray-500 mb-1 uppercase tracking-widest">Exposure</span>
+                                <span class="text-white font-bold">ISO ${data.iso} | ${data.aperture}</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-cyan-200/70 italic border-l-4 border-cyan-500 pl-4 leading-relaxed">${data.insight}</p>
+                    </div>
+                </div>`;
+                
+                document.getElementById('results-display').insertAdjacentHTML('afterbegin', card);
+                status.innerText = "Scan Verified. Results Injected into Portfolio.";
+            } catch (err) {
+                status.innerText = "System Offline. Ensure 'python main.py' is running.";
+            } finally {
+                dropZone.classList.remove('is-scanning');
+            }
+        }
+    </script>
+</body>
+</html>
